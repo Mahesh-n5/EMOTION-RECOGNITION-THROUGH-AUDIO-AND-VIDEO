@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .video-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        #video-feed {
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            width: 640px; 
+            height: 480px; 
+        }
+
+        .emotion-bars {
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .emotion {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .bar {
+            width: 300px;
+            height: 20px;
+            margin-left: 10px;
+            background-color: #f0f0f0;
+            position: relative;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background-color: #4caf50;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .emotion-label {
+            font-weight: bold;
+            min-width: 100px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            background-color: #007bff;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .audio-emotion-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Real-time Emotion Detection</h1>
+    
+    <div style="text-align: center;">
+        <button id="start-btn">Start</button>
+        <button id="stop-btn">Stop</button>
+    </div>
+
+    <div class="video-container">
+        <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Live Webcam Feed">
+        
+        <div class="emotion-bars" id="emotion-bars">
+            {% for emotion, value in emotion_data_video.items() %}  
+            <div class="emotion">
+                <span class="emotion-label">{{ emotion }}</span>
+                <div class="bar">
+                    <div class="bar-fill" style="width: {{ value * 100 }}%;"></div>
+                </div>
+                <span>{{ (value * 100) | round(2) }}%</span> 
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="audio-emotion-container">
+        <h2>Audio Emotion Detection</h2>
+        <div class="emotion-bars" id="audio-emotion-bars">
+        </div>
+    </div>
+
+    <script>
+        function updateEmotionBars(emotionData) {
+            var container = $('#emotion-bars');
+            container.empty();  
+
+            $.each(emotionData, function(emotion, value) {
+                var barFillWidth = value * 100; 
+                var emotionHtml = `
+                    <div class="emotion">
+                        <span class="emotion-label">${emotion}</span>
+                        <div class="bar">
+                            <div class="bar-fill" style="width: ${barFillWidth}%;"></div>
+                        </div>
+                        <span>${barFillWidth.toFixed(2)}%</span>
+                    </div>`;
+                container.append(emotionHtml);
+            });
+        }
+
+        function updateAudioEmotionBars(audioEmotionData) {
+            var container = $('#audio-emotion-bars');
+            container.empty();  
+
+            $.each(audioEmotionData, function(emotion, value) {
+                var barFillWidth = value * 100; 
+                var emotionHtml = `
+                    <div class="emotion">
+                        <span class="emotion-label">${emotion}</span>
+                        <div class="bar">
+                            <div class="bar-fill" style="width: ${barFillWidth}%;"></div>
+                        </div>
+                        <span>${barFillWidth.toFixed(2)}%</span>
+                    </div>`;
+                container.append(emotionHtml);
+            });
+        }
+
+        $('#start-btn').click(function() {
+            $.post('/start_test', function(response) {
+                console.log(response.status);
+            });
+        });
+
+        $('#stop-btn').click(function() {
+            $.post('/stop_test', function(response) {
+                console.log(response.status);
+            });
+        });
+
+        function fetchEmotionData() {
+            $.getJSON('/emotion_data_video', function(data) {  
+                updateEmotionBars(data);
+            });
+
+            $.getJSON('/emotion_data_audio', function(data) {
+                updateAudioEmotionBars(data);
+            });
+        }
+
+        setInterval(fetchEmotionData, 2000);
+    </script>
+</body>
+</html>

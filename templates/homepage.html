@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Welcome to the Emotion Detection App</h1>
+    
+    <button id="start-app">Start Emotion Detection</button>
+    <button id="stop-app" style="display:none;">Stop Emotion Detection</button>
+
+    <script>
+        $('#start-app').click(function() {
+            $.post('/start_app', function(response) {
+                if (response.status === 'started') {
+                    $('#start-app').hide();
+                    $('#stop-app').show();
+                    window.location.href = '/app';
+                }
+            });
+        });
+
+        $('#stop-app').click(function() {
+            $.post('/stop_app', function() {
+                window.location.href = '/';
+            });
+        });
+    </script>
+</body>
+</html>

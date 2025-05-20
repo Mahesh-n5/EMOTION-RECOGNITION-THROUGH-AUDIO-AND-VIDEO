@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection</title>
+</head>
+<body>
+    <h1>Emotion Detection in Progress</h1>
+    
+    <div>
+        <h2>Live Video Feed</h2>
+        <img src="{{ url_for('video_feed') }}" alt="Video Feed">
+    </div>
+
+    <div>
+        <h2>Detected Emotions</h2>
+        <ul>
+            {% for emotion, confidence in emotion_data.items() %}
+                <li>{{ emotion }}: {{ confidence * 100 }}%</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <button id="stop-app">Stop Emotion Detection</button>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('#stop-app').click(function() {
+            $.post('/stop_app', function() {
+                window.location.href = '/';
+            });
+        });
+    </script>
+</body>
+</html>
